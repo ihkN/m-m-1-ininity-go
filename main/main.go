@@ -12,7 +12,7 @@ func main() {
 
 	queue = queue.Init(1.0, 1/0.6)
 
-	if showProbabilities := false; showProbabilities {
+	if showProbabilities := true; showProbabilities {
 		queue.PrintProbabilities()
 	}
 
