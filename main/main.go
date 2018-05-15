@@ -10,7 +10,7 @@ import (
 func main() {
 	var queue Queue.Queue
 
-	queue = queue.Init(1.0, 1/0.6)
+	queue = queue.Init(8.0, 9.0)
 
 	if showProbabilities := true; showProbabilities {
 		queue.PrintProbabilities()
@@ -36,8 +36,8 @@ func main() {
 	waitingTimeInQueue := queue.WaitingTimeInQueue()
 	waitingTimeInSystem := queue.WaitingTimeInSystem()
 
-	fmt.Println("expected waiting time in Queue = ", waitingTimeInQueue, "\n\t=> Wq =", Queue.Round(waitingTimeInQueue*60), "minutes")
-	fmt.Println("expected waiting time in system = ", waitingTimeInSystem, "\n\t=> Ws =", Queue.Round(waitingTimeInSystem*60), "minutes \n ")
+	fmt.Println("expected waiting time in Queue = ", waitingTimeInQueue, "\n\t=> Wq ~", Queue.Round(waitingTimeInQueue*60), "minutes")
+	fmt.Println("expected waiting time in system = ", waitingTimeInSystem, "\n\t=> Ws ~", Queue.Round(waitingTimeInSystem*60), "minutes \n ")
 
 	plot := barchart.BarChartXYs(data)
 	if err := barchart.Fprint(os.Stdout, plot, barchart.Linear(25)); err != nil {
