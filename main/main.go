@@ -2,45 +2,81 @@ package main
 
 import (
 	"fmt"
-	"github.com/aybabtme/uniplot/barchart"
-	"m-m-1-ininity-go/Queue"
-	"os"
+	"math"
+	"math/rand"
+	"time"
 )
 
+type Queue struct {
+	vec []float64
+}
+
+func (q *Queue) Dequeue() float64 {
+	i := len(q.vec) - 1
+	elem := q.vec[i]
+	q.vec = q.vec[:i]
+	return elem
+}
+
+func (q *Queue) Enqueue(x float64) {
+	q.vec = append(q.vec, x)
+}
+
+func (q *Queue) Length() int {
+	return len(q.vec)
+}
+
 func main() {
-	var queue Queue.Queue
+	rand.Seed(time.Now().UTC().UnixNano())
 
-	queue = queue.Init(8.0, 9.0)
+	lambda := 8.0
+	mu := 9.0 / 0.6
 
-	if showProbabilities := true; showProbabilities {
-		queue.PrintProbabilities()
+	nextArrival := getExponentialRandNum(lambda)
+	nextDeparture := math.Inf(1)
+
+	totalWait := 0.0
+	served := 0
+
+	queue := Queue{[]float64{}}
+
+	for {
+		//fmt.Println("nextArrival", nextArrival, "\nnextDeparture", nextDeparture)
+		if nextArrival <= nextDeparture {
+			if queue.Length() == 0 {
+				nextDeparture = nextArrival + getExponentialRandNum(mu)
+			}
+			fmt.Println("Adding to Queue", nextArrival)
+			queue.Enqueue(nextArrival)
+			nextArrival += getExponentialRandNum(lambda)
+		} else {
+			elem := queue.Dequeue()
+			fmt.Println("Removed from Queue", elem)
+			wait := nextDeparture - elem
+			fmt.Println("wait:", wait)
+			totalWait += wait
+			served++
+
+			if served == 1000 {
+				fmt.Println("Done!")
+				fmt.Println("Total wait:", totalWait)
+
+				return
+			}
+			if queue.Length() == 0 {
+				nextDeparture = math.Inf(1)
+			} else {
+				nextDeparture += getExponentialRandNum(mu)
+			}
+		}
 	}
+}
 
-	var data [][2]int
+func getExponentialRandNum(lambda float64) float64 {
+	return math.Log(1-rand.Float64()) / (-lambda)
+}
 
-	fmt.Printf("given values: \n"+
-		"lamda = %v \n"+
-		"mu = %v \n\n", queue.Ro.Lambda, queue.Ro.Mu)
+// -----------------------------------------------------------------------------
 
-	p0Arr := [2]int{0, int(queue.PNull() * 1000)}
-	data = append(data, p0Arr)
-
-	for x := 1; x < 11; x++ {
-		prob := [2]int{x, int(queue.Probability(float64(x)) * 1000)}
-		data = append(data, prob)
-	}
-
-	fmt.Println("expected length of system\n\t=> Ls =", Queue.Round(queue.LengthOfSystem()))
-	fmt.Println("expected length of Queue\n\t=> Lq =", Queue.Round(queue.LengthOfQueue()))
-
-	waitingTimeInQueue := queue.WaitingTimeInQueue()
-	waitingTimeInSystem := queue.WaitingTimeInSystem()
-
-	fmt.Println("expected waiting time in Queue = ", waitingTimeInQueue, "\n\t=> Wq ~", Queue.Round(waitingTimeInQueue*60), "minutes")
-	fmt.Println("expected waiting time in system = ", waitingTimeInSystem, "\n\t=> Ws ~", Queue.Round(waitingTimeInSystem*60), "minutes \n ")
-
-	plot := barchart.BarChartXYs(data)
-	if err := barchart.Fprint(os.Stdout, plot, barchart.Linear(25)); err != nil {
-		panic(err)
-	}
+type Job struct {
 }
